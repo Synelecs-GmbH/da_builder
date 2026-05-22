@@ -1375,12 +1375,14 @@ export const COMMAND_DEFS: CommandDef[] = [
   {
     type: 'BreakLinkToTemplate',
     label: 'Break Link to Template',
-    description: 'Break the inheritance link between an instance attribute and its template.',
+    description: 'Break the template inheritance link for a strategy. Optionally re-derives blocks from their base block templates.',
     category: 'Attribute Update',
     tier: 2,
+    supportsFilter: true,
     attributes: [
-      { name: 'Object', label: 'Object Name', kind: 'tagname', required: true, placeholder: 'COMPND_001', help: 'Object whose attribute link to break.' },
-      { name: 'ParmName', label: 'Attribute Name', kind: 'text', required: true, placeholder: 'DESCRP', help: 'Attribute to break the template link for.' },
+      { name: 'Strategy', label: 'Strategy Name', kind: 'tagname', required: false, placeholder: 'COMPND_001.MyStrategy', help: 'Strategy to break the template link on. Omit if using Filter.', mutuallyExclusiveWith: 'Filter' },
+      { name: 'Filter', label: 'Filter Name', kind: 'filter-ref', required: false, help: 'Filter determining which strategies get their links broken.', mutuallyExclusiveWith: 'Strategy' },
+      { name: 'BreakBlockLink', label: 'Break Block Link', kind: 'enum', required: false, options: ['Yes', 'No'], help: 'If Yes, blocks are re-derived from their base block templates. If No (default), blocks remain derived from their current user-defined block templates.' },
     ],
   },
   {
