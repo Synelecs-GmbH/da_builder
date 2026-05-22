@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import type { ScriptCommand } from './types';
 import { serializeScript, extractVariables } from './lib/xml';
 import { BuilderPanel } from './components/builder/BuilderPanel';
@@ -46,6 +46,35 @@ export default function App() {
   }, []);
 
   const variables = extractVariables(state.commands);
+
+  const [previewWidth, setPreviewWidth] = useState(420);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const dragging = useRef(false);
+
+  const onDividerMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    dragging.current = true;
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+
+    const onMouseMove = (ev: MouseEvent) => {
+      if (!dragging.current || !containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const newWidth = rect.right - ev.clientX;
+      setPreviewWidth(Math.min(Math.max(newWidth, 280), rect.width - 300));
+    };
+
+    const onMouseUp = () => {
+      dragging.current = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  }, []);
 
   const handleDownload = () => {
     const xmlContent = serializeScript({ name: state.name, commands: state.commands, createdAt: new Date().toISOString(), version: '1' });
@@ -132,7 +161,7 @@ export default function App() {
       </header>
 
       {/* Main split panel */}
-      <div style={{ flex: 1, display: 'flex', minHeight: 0, overflow: 'hidden' }}>
+      <div ref={containerRef} style={{ flex: 1, display: 'flex', minHeight: 0, overflow: 'hidden' }}>
         {/* Builder */}
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           <BuilderPanel
@@ -142,11 +171,20 @@ export default function App() {
           />
         </div>
 
-        {/* Divider */}
-        <div style={{ width: 1, background: 'var(--border)', flexShrink: 0 }} />
+        {/* Resize handle */}
+        <div
+          onMouseDown={onDividerMouseDown}
+          style={{
+            width: 5, flexShrink: 0, cursor: 'col-resize',
+            background: 'var(--border)',
+            transition: 'background 0.15s',
+          }}
+          onMouseEnter={e => (e.currentTarget.style.background = 'var(--accent)')}
+          onMouseLeave={e => (e.currentTarget.style.background = 'var(--border)')}
+        />
 
         {/* XML Preview */}
-        <div style={{ width: '42%', minWidth: 320, maxWidth: 640, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div style={{ width: previewWidth, minWidth: 280, display: 'flex', flexDirection: 'column', overflow: 'hidden', flexShrink: 0 }}>
           <div style={{
             padding: '6px 12px', borderBottom: '1px solid var(--border)', background: 'var(--bg2)',
             fontSize: 11, color: 'var(--text3)', fontWeight: 600, letterSpacing: '0.5px', textTransform: 'uppercase',
