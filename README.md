@@ -1,73 +1,50 @@
-# React + TypeScript + Vite
+# Direct Access Script Builder
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A browser-based tool for building [Foxboro Evo](https://www.schneider-electric.com/en/work/solutions/for-business/industrial-automation-and-control/foxboro-evo-process-automation-system/) Direct Access XML scripts — no installation required on the target system.
 
-Currently, two official plugins are available:
+Engineers write scripts to bulk-configure the Galaxy database (creating hardware objects, assigning controllers, deploying strategies, updating block attributes, etc.). Hand-writing the XML is error-prone. This app provides a form-driven builder with a live XML preview that outputs valid, ready-to-run `.xml` files for use with `DirectAccess.exe` / `DirectAccess_Cmd.exe`.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- **Categorised command picker** — 100+ commands organised by category (Support, Query Filters, Assign, Create, Delete, Deploy, Rename, Attribute Update, Lock/Unlock, Timer, Import/Export, …)
+- **Inline form editor** — each command expands into a typed form with field-level help, enums, filter references, and variable insertion
+- **Live XML preview** — CodeMirror 6 syntax-highlighted panel that updates in real time; toggle to edit mode to tweak XML directly and sync changes back to the builder
+- **Variable manager** — tracks all `SetVar` variables; insert `%VarName%` into any field
+- **Filter tracker** — shows all named filters and their accumulated conditions
+- **Loop container** — `PerformOperation` visually nests child commands with the `^` loop-index badge
+- **Drag-to-reorder** — rearrange commands via drag handle
+- **Duplicate command** — clone any command (including loop children) and insert it immediately after
+- **Import XML** — paste or upload an existing `.xml` script and populate the builder
+- **Save / Load project** — round-trip the builder state as `.dascript.json`
+- **Download XML** — export a UTF-8 `.xml` file ready to run
+- **Light / dark theme** — persisted in `localStorage`
+- **Built-in examples** — one-click load for common script patterns
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Getting Started
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Open [http://localhost:5173](http://localhost:5173).
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Build
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run build
 ```
+
+Output goes to `dist/` — deploy as any static site.
+
+## Stack
+
+- [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
+- [Vite](https://vite.dev/)
+- [CodeMirror 6](https://codemirror.net/) — XML syntax highlighting
+- [@dnd-kit](https://dndkit.com/) — drag-and-drop
+- [Lucide React](https://lucide.dev/) — icons
+
+## Script Compatibility
+
+Generated XML targets the **Foxboro Evo / ArchestrA** Direct Access scripting engine. Attribute names and command structure follow the *Scripting with Direct Access User's Guide* (document B0750BM).
